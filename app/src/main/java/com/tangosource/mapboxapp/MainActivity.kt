@@ -5,9 +5,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
+import com.mapbox.mapboxsdk.maps.Style
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -17,6 +22,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Mapbox.getInstance(this, BuildConfig.MAPBOX_ACCESS_TOKEN)
         setContentView(R.layout.activity_main)
 
         mapView = findViewById(R.id.mapView)
@@ -25,7 +31,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
-
+        this.mapboxMap = mapboxMap
+        this.mapboxMap?.setStyle(Style.MAPBOX_STREETS) {
+            enableLocationComponent(it)
+        }
     }
 
     override fun onStart() {
@@ -83,6 +92,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                 "You didn\'t grant location permissions.",
                 Toast.LENGTH_LONG
             ).show()
+            return
+        }
+    }
+
+    private fun enableLocationComponent(loadedMapStyle: Style) {
+        if (!PermissionsManager.areLocationPermissionsGranted(this)) {
+            permissionsManager = PermissionsManager(this)
+            permissionsManager?.requestLocationPermissions(this)
             return
         }
     }
