@@ -12,7 +12,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
+        buildConfigField('String', 'MAPBOX_ACCESS_TOKEN', '"here goes your mapbox access token"')
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
