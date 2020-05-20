@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Mapbox App</string>
+    <string name="search">Search</string>
 </resources>
