@@ -6,9 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.location.modes.CameraMode
-import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
@@ -28,13 +25,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync(this)
-    }
-
-    override fun onMapReady(mapboxMap: MapboxMap) {
-        this.mapboxMap = mapboxMap
-        this.mapboxMap?.setStyle(Style.MAPBOX_STREETS) {
-            enableLocationComponent(it)
-        }
     }
 
     override fun onStart() {
@@ -70,6 +60,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     override fun onDestroy() {
         super.onDestroy()
         mapView?.onDestroy()
+    }
+
+    override fun onMapReady(mapboxMap: MapboxMap) {
+        this.mapboxMap = mapboxMap
+        this.mapboxMap?.setStyle(Style.MAPBOX_STREETS) {
+            enableLocationComponent(it)
+        }
     }
 
     override fun onRequestPermissionsResult(
