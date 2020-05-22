@@ -6,6 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
@@ -91,6 +97,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             ).show()
             return
         }
+
+        mapboxMap?.style?.let { enableLocationComponent(it) }
     }
 
     private fun enableLocationComponent(loadedMapStyle: Style) {
@@ -98,6 +106,32 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             permissionsManager = PermissionsManager(this)
             permissionsManager?.requestLocationPermissions(this)
             return
+        }
+
+        val locationComponent = mapboxMap?.locationComponent
+        locationComponent?.activateLocationComponent(
+            LocationComponentActivationOptions.builder(
+                this,
+                loadedMapStyle
+            ).build()
+        )
+        locationComponent?.isLocationComponentEnabled = true
+        locationComponent?.cameraMode = CameraMode.NONE
+        locationComponent?.renderMode = RenderMode.COMPASS
+
+        val lastLocation = locationComponent?.lastKnownLocation
+        if (lastLocation != null) {
+            val lat = lastLocation.latitude
+            val lng = lastLocation.longitude
+            val location = LatLng(lat, lng)
+
+            val position = CameraPosition.Builder()
+                .target(location)
+                .zoom(10.0)
+                .tilt(20.0)
+                .build()
+
+            mapboxMap?.animateCamera(CameraUpdateFactory.newCameraPosition(position), 3000)
         }
     }
 }
