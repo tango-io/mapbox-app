@@ -23,10 +23,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val address: LiveData<MutableList<CarmenFeature>>
         get() = _searchingAddress
 
-    fun fetchAddress(address: String, centerLocation: LatLng?, latLngBounds: LatLngBounds) {
+    fun fetchAddress(address: String, centerLocation: LatLng?) {
         viewModelScope.launch {
             try {
-                val carmenFeatures = repository.fetchAddress(address, centerLocation, latLngBounds)
+                val carmenFeatures = repository.fetchAddress(address, centerLocation)
                 _searchingAddress.value = carmenFeatures
             } catch (e: Exception) {
                 e.printStackTrace()

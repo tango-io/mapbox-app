@@ -20,11 +20,10 @@ class MainRepository {
 
     suspend fun fetchAddress(
         address: String,
-        centerLocation: LatLng?,
-        latLngBounds: LatLngBounds
+        centerLocation: LatLng?
     ): MutableList<CarmenFeature> {
         return suspendCoroutine { continuation ->
-            val reverseGeocode = getMapboxGeocoding(address, centerLocation, latLngBounds)
+            val reverseGeocode = getMapboxGeocoding(address, centerLocation)
             reverseGeocode.enqueueCall(object : Callback<GeocodingResponse> {
                 override fun onResponse(
                     call: Call<GeocodingResponse>,
@@ -49,8 +48,7 @@ class MainRepository {
 
     private fun getMapboxGeocoding(
         address: String,
-        centerLocation: LatLng?,
-        latLngBounds: LatLngBounds
+        centerLocation: LatLng?
     ): MapboxGeocoding {
 
         val builder = MapboxGeocoding.builder()
