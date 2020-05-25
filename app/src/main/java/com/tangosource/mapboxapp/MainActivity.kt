@@ -60,8 +60,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         searchAddressAdapter = SearchAdapter(object : SearchListener {
             override fun onSelectAddress(address: CarmenFeature) {
                 val point = address.geometry() as Point
+                // create a new LatLng object
+                val latLng = LatLng(point.latitude(), point.longitude())
                 cvAddresses.visibility = View.GONE
-                addMarker(point)
+                addMarker(latLng)
+                moveCameraToLocation(latLng)
             }
         })
 
@@ -203,15 +206,19 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             val lat = lastLocation.latitude
             val lng = lastLocation.longitude
             val location = LatLng(lat, lng)
-
-            val position = CameraPosition.Builder()
-                .target(location)
-                .zoom(10.0)
-                .tilt(20.0)
-                .build()
-
-            mapboxMap?.animateCamera(CameraUpdateFactory.newCameraPosition(position), 3000)
+            moveCameraToLocation(location)
         }
+    }
+
+    private fun moveCameraToLocation(location: LatLng) {
+        val position = CameraPosition.Builder()
+            .target(location) // the location where to camera will move
+            .zoom(10.0) // the zoom of our map
+            .tilt(20.0) // title in degrees
+            .build()
+        // animateCamera method let us move the camera map. Needs to parameters
+        // the new position of the camera and the millisecond that will
+        mapboxMap?.animateCamera(CameraUpdateFactory.newCameraPosition(position), 3000)
     }
 
     private fun initMarkerIconSymbolManager(loadedMapStyle: Style) {
@@ -234,10 +241,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
 
     /** Adds a new Marker*/
-    private fun addMarker(point: Point) {
+    private fun addMarker(latLng: LatLng) {
         val symbolOptions = SymbolOptions()
-        // create a new LatLng object
-        val latLng = LatLng(point.latitude(), point.longitude())
+
         symbolOptions
             // set the location on which the marker will be set
             .withLatLng(latLng)
@@ -250,5 +256,4 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
         symbolManager.create(symbolOptions)
     }
-
 }
