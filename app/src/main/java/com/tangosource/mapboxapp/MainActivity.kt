@@ -1,5 +1,6 @@
 package com.tangosource.mapboxapp
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.api.geocoding.v5.models.CarmenFeature
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -23,6 +25,8 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
@@ -40,6 +44,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     // central point of our map
     private var centerLocation: LatLng? = null
 
+    private lateinit var symbolManager: SymbolManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, BuildConfig.MAPBOX_ACCESS_TOKEN)
@@ -53,7 +59,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
         searchAddressAdapter = SearchAdapter(object : SearchListener {
             override fun onSelectAddress(address: CarmenFeature) {
-//                  addMarker()
+                val point = address.geometry() as Point
+                cvAddresses.visibility = View.GONE
+                addMarker(point)
             }
         })
 
@@ -142,6 +150,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         this.mapboxMap = mapboxMap
         this.mapboxMap?.setStyle(Style.MAPBOX_STREETS) {
             enableLocationComponent(it)
+            initMarkerIconSymbolManager(it)
         }
     }
 
@@ -204,4 +213,42 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             mapboxMap?.animateCamera(CameraUpdateFactory.newCameraPosition(position), 3000)
         }
     }
+
+    private fun initMarkerIconSymbolManager(loadedMapStyle: Style) {
+        // .addImage() is the methodo we use to set the image for our symbol
+        loadedMapStyle.addImage(
+            "marker_icon", BitmapFactory.decodeResource(
+                this.resources, R.drawable.red_marker
+            )
+        )
+        // sumboManager needs the mapView, the instance of our
+        // mapbox map and the style that we chose for our map
+        symbolManager = SymbolManager(mapView!!, mapboxMap!!, loadedMapStyle)
+
+        // true, the icon will be visible even if it collides with other previously drawn symbols.
+        symbolManager.iconAllowOverlap = true
+
+        // true, other symbols can be visible even if they collide with the icon.
+        symbolManager.iconIgnorePlacement = true
+    }
+
+
+    /** Adds a new Marker*/
+    private fun addMarker(point: Point) {
+        val symbolOptions = SymbolOptions()
+        // create a new LatLng object
+        val latLng = LatLng(point.latitude(), point.longitude())
+        symbolOptions
+            // set the location on which the marker will be set
+            .withLatLng(latLng)
+            // the image id
+            .withIconImage("marker_icon")
+            // the icon size
+            .withIconSize(0.3f)
+            // Offset distance of icon from its anchor
+            .withIconOffset(arrayOf(0f, -7f))
+
+        symbolManager.create(symbolOptions)
+    }
+
 }
