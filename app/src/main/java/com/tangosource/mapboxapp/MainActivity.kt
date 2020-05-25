@@ -194,14 +194,18 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             val lat = lastLocation.latitude
             val lng = lastLocation.longitude
             val location = LatLng(lat, lng)
-
-            val position = CameraPosition.Builder()
-                .target(location)
-                .zoom(10.0)
-                .tilt(20.0)
-                .build()
-
-            mapboxMap?.animateCamera(CameraUpdateFactory.newCameraPosition(position), 3000)
+            moveCameraToLocation(location)
         }
     }
+
+private fun moveCameraToLocation(location: LatLng) {
+    val position = CameraPosition.Builder()
+        .target(location) // the location where to camera will move
+        .zoom(10.0) // the zoom of our map
+        .tilt(20.0) // title in degrees
+        .build()
+    // animateCamera method let us move the camera map. Needs to parameters
+    // the new position of the camera and the millisecond that will
+    mapboxMap?.animateCamera(CameraUpdateFactory.newCameraPosition(position), 3000)
+}
 }
