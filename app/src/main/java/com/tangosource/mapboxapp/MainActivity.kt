@@ -16,7 +16,6 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
@@ -37,9 +36,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     // the adaptar that will handle the addresses found
     private lateinit var searchAddressAdapter: SearchAdapter
-
-    // the bounds of the visible region of our map
-    private lateinit var latLngBounds: LatLngBounds
 
     // central point of our map
     private var centerLocation: LatLng? = null
@@ -70,7 +66,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         etAddress.setOnTouchListener { v, event ->
             if (MotionEvent.ACTION_UP == event.action) {
                 centerLocation = mapboxMap?.cameraPosition?.target
-                latLngBounds = mapboxMap?.projection?.visibleRegion?.latLngBounds!!
                 cvAddresses.visibility = View.VISIBLE
             }
 
@@ -85,7 +80,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                     return
                 }
 
-                mainViewModel.fetchAddress(s.toString(), centerLocation, latLngBounds)
+                mainViewModel.fetchAddress(s.toString(), centerLocation)
             }
 
             override fun beforeTextChanged(
