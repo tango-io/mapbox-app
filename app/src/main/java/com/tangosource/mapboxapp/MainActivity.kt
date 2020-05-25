@@ -65,17 +65,17 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             adapter = searchAddressAdapter
         }
 
-/** When the user clicks on edit text to start typing address, we need to get both
- * the central position the visible region of our map  */
-etAddress.setOnTouchListener { v, event ->
-    if(MotionEvent.ACTION_UP == event.action) {
-        centerLocation = mapboxMap?.cameraPosition?.target
-        latLngBounds = mapboxMap?.projection?.visibleRegion?.latLngBounds!!
-        cvAddresses.visibility = View.VISIBLE
-    }
+        /** When the user clicks on edit text to start typing address, we need to get both
+         * the central position the visible region of our map  */
+        etAddress.setOnTouchListener { v, event ->
+            if (MotionEvent.ACTION_UP == event.action) {
+                centerLocation = mapboxMap?.cameraPosition?.target
+                latLngBounds = mapboxMap?.projection?.visibleRegion?.latLngBounds!!
+                cvAddresses.visibility = View.VISIBLE
+            }
 
-    false
-}
+            false
+        }
 
         etAddress.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {

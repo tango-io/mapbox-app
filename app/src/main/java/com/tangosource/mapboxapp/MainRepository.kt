@@ -4,6 +4,7 @@ import com.mapbox.api.geocoding.v5.GeocodingCriteria
 import com.mapbox.api.geocoding.v5.MapboxGeocoding
 import com.mapbox.api.geocoding.v5.models.CarmenFeature
 import com.mapbox.api.geocoding.v5.models.GeocodingResponse
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import retrofit2.Call
@@ -53,10 +54,18 @@ class MainRepository {
         latLngBounds: LatLngBounds
     ): MapboxGeocoding {
 
+
         val builder = MapboxGeocoding.builder()
             .accessToken(BuildConfig.MAPBOX_ACCESS_TOKEN)
             .query(address)
             .geocodingTypes(GeocodingCriteria.TYPE_ADDRESS)
+
+        if (centerLocation != null) {
+            // create a new Point object, needs longitude and latitude that
+            // we can get from centerLocation variable
+            val proximity = Point.fromLngLat(centerLocation.longitude, centerLocation.latitude)
+            builder.proximity(proximity)
+        }
 
         return builder.build()
     }
