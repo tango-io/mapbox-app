@@ -44,8 +44,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     // central point of our map
     private var centerLocation: LatLng? = null
 
-    private lateinit var symbolManager: SymbolManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, BuildConfig.MAPBOX_ACCESS_TOKEN)
@@ -59,12 +57,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
         searchAddressAdapter = SearchAdapter(object : SearchListener {
             override fun onSelectAddress(address: CarmenFeature) {
-                val point = address.geometry() as Point
-                // create a new LatLng object
-                val latLng = LatLng(point.latitude(), point.longitude())
-                cvAddresses.visibility = View.GONE
-                addMarker(latLng)
-                moveCameraToLocation(latLng)
+//                addMarker(latLng)
             }
         })
 
@@ -111,7 +104,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
          * If addresses list is empty cvAddresses will hide otherwise will be visible to the user
          * with the addresses found
          */
-
         mainViewModel.address.observe(this, Observer {
             cvAddresses.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
             searchAddressAdapter.updateAddressList(it)
@@ -157,7 +149,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         this.mapboxMap = mapboxMap
         this.mapboxMap?.setStyle(Style.MAPBOX_STREETS) {
             enableLocationComponent(it)
-            initMarkerIconSymbolManager(it)
         }
     }
 
@@ -223,41 +214,5 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         // animateCamera method let us move the camera map. Needs to parameters
         // the new position of the camera and the millisecond that will
         mapboxMap?.animateCamera(CameraUpdateFactory.newCameraPosition(position), 3000)
-    }
-
-    private fun initMarkerIconSymbolManager(loadedMapStyle: Style) {
-        // .addImage() is the methodo we use to set the image for our symbol
-        loadedMapStyle.addImage(
-            "marker_icon", BitmapFactory.decodeResource(
-                this.resources, R.drawable.red_marker
-            )
-        )
-        // sumboManager needs the mapView, the instance of our
-        // mapbox map and the style that we chose for our map
-        symbolManager = SymbolManager(mapView!!, mapboxMap!!, loadedMapStyle)
-
-        // true, the icon will be visible even if it collides with other previously drawn symbols.
-        symbolManager.iconAllowOverlap = true
-
-        // true, other symbols can be visible even if they collide with the icon.
-        symbolManager.iconIgnorePlacement = true
-    }
-
-
-    /** Adds a new Marker*/
-    private fun addMarker(latLng: LatLng) {
-        val symbolOptions = SymbolOptions()
-
-        symbolOptions
-            // set the location on which the marker will be set
-            .withLatLng(latLng)
-            // the image id
-            .withIconImage("marker_icon")
-            // the icon size
-            .withIconSize(0.3f)
-            // Offset distance of icon from its anchor
-            .withIconOffset(arrayOf(0f, -7f))
-
-        symbolManager.create(symbolOptions)
     }
 }
