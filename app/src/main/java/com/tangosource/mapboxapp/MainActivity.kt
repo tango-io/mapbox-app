@@ -1,6 +1,5 @@
 package com.tangosource.mapboxapp
 
-import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.Editable
@@ -47,7 +46,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     private lateinit var symbolManager: SymbolManager
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, BuildConfig.MAPBOX_ACCESS_TOKEN)
@@ -79,6 +77,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         etAddress.setOnTouchListener { v, event ->
             if (MotionEvent.ACTION_UP == event.action) {
                 centerLocation = mapboxMap?.cameraPosition?.target
+                cvAddresses.visibility = View.VISIBLE
             }
 
             false
@@ -109,12 +108,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             }
         })
 
-        /** this observe will execute every time we have a response of our Places API request
-         * If addresses list is empty cvAddresses will hide otherwise will be visible to the user
-         * with the addresses found
-         */
+        /** this observe will execute every time we have a response of our Places API request */
         mainViewModel.address.observe(this, Observer {
-            cvAddresses.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
             searchAddressAdapter.updateAddressList(it)
         })
     }
